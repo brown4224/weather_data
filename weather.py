@@ -4,61 +4,50 @@ import pandas as pd
 
 
 
+def reformat_data(weather_data):
+    for key, value in weather_data.items():
+
+        value["DATE"], value["TIME"] = value["DATE"].str.split("\s+", 1).str
+        value["TIME"] = value["TIME"].str.replace(':', '').astype(int)
+
+    return weather_data
+
+
 def avg_temp(date):
     # todo perform check on dates
-    data = atl.loc[date == atl["DATE"]]
-    sunrise = min(data["DAILYSunrise"])
-    sunset = max(data["DAILYSunset"])
-    # m = data["HOURLYDRYBULBTEMPF"].mean()
-    # data.loc[(data['column_name'] == some_value) & data['other_column'].isin(some_values)]
-    data_sanatized = data.loc[(data["TIME"] > sunrise) & (data["TIME"] < sunset)]
-    m = m["HOURLYDRYBULBTEMPF"].mean()
-    print(m)
-
-    # print ([temp for temp in data["HOURLYDRYBULBTEMPF"] if data["TIME"] > sunrise])
-
-    # change time format data["TIME"] :   6:35 -> 635
-    # test = data['TIME'].astype(int)
-    # test = data['TIME'].str.replace('0', '')
-    # print (data['TIME'].replace('0', '', regex=False, inplace=True))
-
-    # print(test)
-    # data = data.loc[data["TIME"] > sunrise &  data["TIME"] < sunrise]
-    # print (data)
-
-    # print (data.loc[(data["TIME"] > sunrise) &  (data["TIME"] < sunrise)])
+    results = {}
+    for key, value in weather_data.items():
+        results[key] = {}
+        results[key]["TEMP_AVG"] = {}
+        results[key]["TEMP_STD"] = {}
 
 
-
-    # temp["FAHRENHEIT"], temp["CELSIU"] =  data["HOURLYDRYBULBTEMPF"]
-    # data = data.loc[data["TIME"] > sunrise &&  data["TIME"] < sunrise]
-    # print (re.sub(':', '', date["TIME"]).str)
-    # print(date["TIME"].str.replace(':', ''))
-    # print (test.values)
-    # print(list(atl.rows.values))
-    # print(test["TIME"] ," ", test["DAILYSunset"])
-    # print (test["DAILYSunrise"])
-
-    # print (test["DAILYSunrise"])
-    # data['TIME'] = data['TIME'].map(lambda x: x.strip(":"))
-    # data['T'] = data['TIME'].apply(lambda x: x.strip(":"))
-    # print ([data['TIME'] > sunrise])
-    # data['TIME'] = data['TIME'].strip(":")
-
-    # print (pd.to_numeric(data['TIME']))
+        data = value.loc[date == value["DATE"]]
+        sunrise = min(data["DAILYSunrise"])
+        sunset = max(data["DAILYSunset"])
+        data = data.loc[(data["TIME"] > sunrise) & (data["TIME"] < sunset)]
+        results[key]["TEMP_AVG"]["FAHRENHEIT"] = data["HOURLYDRYBULBTEMPF"].mean()
+        results[key]["TEMP_AVG"]["CELSIUS"]    = data["HOURLYDRYBULBTEMPC"].mean()
+        results[key]["TEMP_STD"]["FAHRENHEIT"] = data["HOURLYDRYBULBTEMPF"].std()
+        results[key]["TEMP_STD"]["CELSIUS"]    = data["HOURLYDRYBULBTEMPC"].std()
+    return results
 
 
-#      HOURLYDRYBULBTEMPF
 if __name__ == "__main__":
     # todo perform checks on input data
-    tx = pd.read_csv("./data/1089419.csv")
-    atl = pd.read_csv("./data/1089441.csv")
+    weather_data = {}
+    weather_data["TX"] = pd.read_csv("./data/1089419.csv")
+    weather_data["ATL"] = pd.read_csv("./data/1089441.csv")
 
     # Reformat Data
-    atl["DATE"], atl["TIME"] = atl["DATE"].str.split("\s+", 1).str
-    atl["TIME"] = atl["TIME"].str.replace(':', '').astype(int)
+    weather_data = reformat_data(weather_data)
+
 
     # Call Function
-    avg_temp("10/3/17")
+    temp_data = avg_temp("10/3/17")
+    print (temp_data["ATL"]["TEMP_AVG"]["FAHRENHEIT"])
+    print (temp_data["ATL"]["TEMP_AVG"]["CELSIUS"])
+    print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
+    print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
 
 
