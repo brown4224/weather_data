@@ -9,6 +9,7 @@ def reformat_data(weather_data):
         value["DATE"], value["TIME"] = value["DATE"].str.split("\s+", 1).str
         value["TIME"] = value["TIME"].str.replace(':', '').astype(int)
     #    todo check time for NAN pd.to_numeric(data["HOURLYDRYBULBTEMPF"], errors='coerce').fillna(1000).astype(np.int64) < 40.0)]
+
     return weather_data
 
 
@@ -32,27 +33,51 @@ def avg_temp(date):
     return results
 
 
-def wind_chill_equation(temp, vilocity):
+def wind_chill_equation(temp, velocity):
     #  Cite US Windchill 2001:  https://en.wikipedia.org/wiki/Wind_chill
-    vilocity = vilocity ** 0.16
-    return 35.74 + 0.6215 * temp - 35.75 *  vilocity + 0.4275 * temp * vilocity
+    # assert (temp.isnumeric())
+    # assert (velocity.isnumeric())
+    # print (velocity)
+    velocity = float(velocity)
+    temp = float(temp)
+    velocity = velocity ** 0.16
+    WC = 35.74 + 0.6215 * temp - 35.75 * velocity + 0.4275 * temp * velocity
+    return round(WC, 1)
 
+
+# def test(value):
+#     print (value)
 
 def wind_chill(date):
     results = {}
     # todo perform check on dates
     results = {}
     for key, value in weather_data.items():
-        results[key] = {}
 
 
 
         data = value.loc[(date == value["DATE"]) ]
         data = data.loc[(pd.to_numeric(data["HOURLYDRYBULBTEMPF"], errors='coerce').fillna(1000).astype(np.int64) < 40)]
-        print (data["HOURLYDRYBULBTEMPF"])
-        wind_chill_equation()
+        # print (data["HOURLYDRYBULBTEMPF"])
+        # data["HOURLYWindSpeed"] = pd.to_numeric(data["HOURLYWindSpeed"], errors='coerce').fillna(0).astype(np.int64)
 
-    # return results
+        # print (data["HOURLYDRYBULBTEMPF"])
+        # print (data.shape[0])
+        # print (data["HOURLYDRYBULBTEMPF"])
+
+
+        WC = []
+        if data.shape[0] > 0:
+            WC = data.apply(lambda x: wind_chill_equation(x["HOURLYDRYBULBTEMPF"], x["HOURLYWindSpeed"]), axis=1)
+        # data["H"], data["WC"] = data.apply(lambda x: wind_chill_equation(x["HOURLYDRYBULBTEMPF"], x["HOURLYWindSpeed"]), axis=1)
+        # print(list(WC))
+        results[key] = list(WC)
+        # print (list(data["WC"]))
+        # rv["common_body"] = rv.apply(lambda x: common_terms(x["body"], x["query"]), axis=1)
+
+        # wind_chill_equation()
+
+    return results
 
 
 if __name__ == "__main__":
@@ -72,7 +97,10 @@ if __name__ == "__main__":
     # print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
     # print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
 
-    temp_data = wind_chill("1/1/08")
+    wc_data = wind_chill("1/1/08")
+    print (wc_data["TX"])
+    print (wc_data["ATL"])
+
 
 
 
