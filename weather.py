@@ -21,7 +21,6 @@ def avg_temp(date):
         results[key]["TEMP_AVG"] = {}
         results[key]["TEMP_STD"] = {}
 
-
         data = value.loc[date == value["DATE"]]
         sunrise = min(data["DAILYSunrise"])
         sunset = max(data["DAILYSunset"])
@@ -37,7 +36,6 @@ def wind_chill_equation(temp, velocity):
     #  Cite US Windchill 2001:  https://en.wikipedia.org/wiki/Wind_chill
     # assert (temp.isnumeric())
     # assert (velocity.isnumeric())
-    # print (velocity)
     velocity = float(velocity)
     temp = float(temp)
     velocity = velocity ** 0.16
@@ -45,38 +43,16 @@ def wind_chill_equation(temp, velocity):
     return round(WC, 1)
 
 
-# def test(value):
-#     print (value)
-
 def wind_chill(date):
-    results = {}
     # todo perform check on dates
     results = {}
+    WC = []
     for key, value in weather_data.items():
-
-
-
         data = value.loc[(date == value["DATE"]) ]
         data = data.loc[(pd.to_numeric(data["HOURLYDRYBULBTEMPF"], errors='coerce').fillna(1000).astype(np.int64) < 40)]
-        # print (data["HOURLYDRYBULBTEMPF"])
-        # data["HOURLYWindSpeed"] = pd.to_numeric(data["HOURLYWindSpeed"], errors='coerce').fillna(0).astype(np.int64)
-
-        # print (data["HOURLYDRYBULBTEMPF"])
-        # print (data.shape[0])
-        # print (data["HOURLYDRYBULBTEMPF"])
-
-
-        WC = []
         if data.shape[0] > 0:
             WC = data.apply(lambda x: wind_chill_equation(x["HOURLYDRYBULBTEMPF"], x["HOURLYWindSpeed"]), axis=1)
-        # data["H"], data["WC"] = data.apply(lambda x: wind_chill_equation(x["HOURLYDRYBULBTEMPF"], x["HOURLYWindSpeed"]), axis=1)
-        # print(list(WC))
         results[key] = list(WC)
-        # print (list(data["WC"]))
-        # rv["common_body"] = rv.apply(lambda x: common_terms(x["body"], x["query"]), axis=1)
-
-        # wind_chill_equation()
-
     return results
 
 
@@ -90,16 +66,19 @@ if __name__ == "__main__":
     weather_data = reformat_data(weather_data)
 
 
-    # Call Function
-    # temp_data = avg_temp("10/3/17")
-    # print (temp_data["ATL"]["TEMP_AVG"]["FAHRENHEIT"])
-    # print (temp_data["ATL"]["TEMP_AVG"]["CELSIUS"])
-    # print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
-    # print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
+    # Method 1
+    temp_data = avg_temp("10/3/17")
+    print (temp_data["ATL"]["TEMP_AVG"]["FAHRENHEIT"])
+    print (temp_data["ATL"]["TEMP_AVG"]["CELSIUS"])
+    print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
+    print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
 
+    # Method 2
     wc_data = wind_chill("1/1/08")
     print (wc_data["TX"])
     print (wc_data["ATL"])
+
+    # Method 3
 
 
 
