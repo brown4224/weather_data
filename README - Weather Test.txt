@@ -1,0 +1,11 @@
+Attached are two CSV files with hourly weather data for Hartsfield-Jackson Airport and Canadian, TX. Also included is the Local Climatological Data (LCD) Dataset Documentation, which contains definitions of weather codes within the data set. 
+
+Using the programming language of your choice, please read the data as input and write methods that do the following:
+
+Write a method that takes a date as its argument and returns a data structure with the average and standard deviation
+of the temperature (dry-bulb temperature) between the hours of sunrise and sunset.
+
+Write a method that takes a date as its argument and returns the wind chill
+ rounded to the nearest integer for the times when the temperature is less than 40 degrees Fahrenheit.
+
+Write a method that reads both data sets and finds the day in which the conditions in Canadian, TX, were most similar to Atlanta's Hartsfield-Jackson Airport. You may use any column for your similarity metric, but be prepared to justify your choice of measurements.https://stackoverflow.com/questions/5585779/how-do-i-convert-a-string-to-an-int-in-java
