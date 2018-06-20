@@ -13,7 +13,7 @@ def reformat_data(weather_data):
     return weather_data
 
 
-def avg_temp(date):
+def avg_temp(weather_data, date):
     # todo perform check on dates
     results = {}
     for key, value in weather_data.items():
@@ -43,7 +43,7 @@ def wind_chill_equation(temp, velocity):
     return round(WC, 1)
 
 
-def wind_chill(date):
+def wind_chill(weather_data, date):
     # todo perform check on dates
     results = {}
     WC = []
@@ -54,6 +54,40 @@ def wind_chill(date):
             WC = data.apply(lambda x: wind_chill_equation(x["HOURLYDRYBULBTEMPF"], x["HOURLYWindSpeed"]), axis=1)
         results[key] = list(WC)
     return results
+
+def process_data(df, date):
+    #     todo assert data frame
+    # new_row = np.array([date])
+    # new_row.append(date)
+    row = []
+    row.append(date)
+    df = df.loc[:, ["HOURLYVISIBILITY" , "HOURLYDRYBULBTEMPF", "HOURLYWETBULBTEMPF", "HOURLYRelativeHumidity", "HOURLYWindSpeed", "HOURLYWindDirection", "HOURLYWindGustSpeed"]]
+    # new_row.extend( df.fillna(0).values().flatten('F'))
+    t = df.fillna(0).as_matrix().flatten('F')
+    row.extend(t)
+    print(row)
+
+    # new_row.extend( df.fillna(0).as_matrix().flatten('F'))
+    # new_row.concatenate df.fillna(0).as_matrix().flatten('F'))
+    return row
+
+
+def similar_days(weather_data, date):
+    # for key, value in weather_data.items():
+    atl = weather_data["ATL"]
+    tx = weather_data["TX"]
+    list_of_dates = tx['DATE'].unique()
+
+    tx_matrix = []
+    for i in range(len(list_of_dates)):
+        # print(list_of_dates[i])
+        date = list_of_dates[i]
+        data = tx.loc[(date == tx["DATE"])]
+        tx_matrix.append( process_data(data, date))
+    print(tx_matrix)
+
+
+
 
 
 if __name__ == "__main__":
@@ -66,19 +100,20 @@ if __name__ == "__main__":
     weather_data = reformat_data(weather_data)
 
 
-    # Method 1
-    temp_data = avg_temp("10/3/17")
-    print (temp_data["ATL"]["TEMP_AVG"]["FAHRENHEIT"])
-    print (temp_data["ATL"]["TEMP_AVG"]["CELSIUS"])
-    print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
-    print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
-
-    # Method 2
-    wc_data = wind_chill("1/1/08")
-    print (wc_data["TX"])
-    print (wc_data["ATL"])
+    # # Method 1
+    # temp_data = avg_temp(weather_data, "10/3/17")
+    # print (temp_data["ATL"]["TEMP_AVG"]["FAHRENHEIT"])
+    # print (temp_data["ATL"]["TEMP_AVG"]["CELSIUS"])
+    # print (temp_data["ATL"]["TEMP_STD"]["FAHRENHEIT"])
+    # print (temp_data["ATL"]["TEMP_STD"]["CELSIUS"])
+    #
+    # # Method 2
+    # wc_data = wind_chill(weather_data, "1/1/08")
+    # print (wc_data["TX"])
+    # print (wc_data["ATL"])
 
     # Method 3
+    similar_days(weather_data, "10/3/17")
 
 
 

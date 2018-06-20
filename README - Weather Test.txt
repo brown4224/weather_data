@@ -11,6 +11,26 @@ Write a method that takes a date as its argument and returns the wind chill
 Write a method that reads both data sets and finds the day in which the conditions in Canadian, TX, were most similar to Atlanta's Hartsfield-Jackson Airport. You may use any column for your similarity metric, but be prepared to justify your choice of measurements.https://stackoverflow.com/questions/5585779/how-do-i-convert-a-string-to-an-int-in-java
 
 
+ 'DATE'",
+ 'HOURLYSKYCONDITIONS',  # Remap to numbers
+ 'HOURLYVISIBILITY',
+ 'HOURLYDRYBULBTEMPF',
+ 'HOURLYDRYBULBTEMPC',
+ 'HOURLYWETBULBTEMPF',
+ 'HOURLYWETBULBTEMPC',
+ 'HOURLYDewPointTempF',
+ 'HOURLYDewPointTempC',
+ 'HOURLYRelativeHumidity',
+ 'HOURLYWindSpeed',    # NAN -> 0
+ 'HOURLYWindDirection',
+ 'HOURLYWindGustSpeed',
+ 'HOURLYPressureTendency',  # NAN -> 0
+ 'HOURLYPressureChange',   # NAN -> 0
+ 'HOURLYSeaLevelPressure',
+ 'HOURLYPrecip',   ->  Sum to daily precip
+
+
+
 ['STATION',
  'STATION_NAME',
  'ELEVATION',
