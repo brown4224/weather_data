@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
 from scipy import spatial
+from datetime import datetime
 import sys
 import warnings
 if not sys.warnoptions:
@@ -9,16 +9,24 @@ if not sys.warnoptions:
 
 
 def reformat_data(weather_data):
+    assert (len(weather_data) != 0)
     for key, value in weather_data.items():
         value["DATE"], value["TIME"] = value["DATE"].str.split("\s+", 1).str
         value["TIME"] = value["TIME"].str.replace(':', '').astype(int)
-    #    todo check time for NAN pd.to_numeric(data["HOURLYDRYBULBTEMPF"], errors='coerce').fillna(1000).astype(np.int64) < 40.0)]
-
     return weather_data
+
+def check_date(d):
+    # Cite: https://stackoverflow.com/questions/18539266/how-to-validate-a-specific-date-and-time-format-using-python
+    try:
+        datetime.strptime(d, '%m/%d/%y')
+        return True
+    except ValueError:
+        return False
 
 
 def avg_temp(weather_data, date):
-    # todo perform check on dates
+    assert (len(weather_data) != 0)
+    assert (check_date(date))
     results = {}
     for key, value in weather_data.items():
         results[key] = {}
@@ -38,19 +46,20 @@ def avg_temp(weather_data, date):
 
 def wind_chill_equation(temp, velocity):
     #  Cite US Windchill 2001:  https://en.wikipedia.org/wiki/Wind_chill
-    # assert (temp.isnumeric())
-    # assert (velocity.isnumeric())
     velocity = float(velocity)
     temp = float(temp)
+    assert (isinstance(temp, float))
+    assert (isinstance(velocity, float))
     velocity = velocity ** 0.16
     WC = 35.74 + 0.6215 * temp - 35.75 * velocity + 0.4275 * temp * velocity
     return round(WC, 1)
 
 
 def wind_chill(weather_data, date):
-    # todo perform check on dates
+    assert (len(weather_data) != 0)
+    assert (check_date(date))
     results = {}
-    WC = []
+    WC = [0.0]
     for key, value in weather_data.items():
         data = value.loc[(date == value["DATE"]) ]
         data = data.loc[(pd.to_numeric(data["HOURLYDRYBULBTEMPF"], errors='coerce').fillna(1000).astype(np.int64) < 40)]
@@ -72,19 +81,28 @@ def cos(x,y):
 
 
 def process_data(df, date):
-    #     todo assert data frame
-    row = []
-    row.append(date)
-    df = df.loc[:, ["HOURLYVISIBILITY" , "HOURLYDRYBULBTEMPF", "HOURLYWETBULBTEMPF", "HOURLYRelativeHumidity", "HOURLYWindSpeed", "HOURLYWindDirection", "HOURLYWindGustSpeed"]]
+    assert (len(df) != 0)
+    assert (check_date(date))
 
+
+    df = df.loc[:, ["HOURLYVISIBILITY" , "HOURLYDRYBULBTEMPF", "HOURLYWETBULBTEMPF", "HOURLYRelativeHumidity", "HOURLYWindSpeed", "HOURLYWindDirection", "HOURLYWindGustSpeed", "DAILYSunrise", "DAILYSunset"]]
     df["HOURLYVISIBILITY"] = pd.to_numeric(df["HOURLYVISIBILITY"], errors='coerce')
     df["HOURLYDRYBULBTEMPF"] = pd.to_numeric(df["HOURLYDRYBULBTEMPF"], errors='coerce')
+    df["HOURLYWETBULBTEMPF"] = pd.to_numeric(df["HOURLYWETBULBTEMPF"], errors='coerce')
     df["HOURLYRelativeHumidity"]  = pd.to_numeric(df["HOURLYRelativeHumidity"], errors='coerce')
     df["HOURLYWindSpeed"] = pd.to_numeric(df["HOURLYWindSpeed"], errors='coerce')
     df["HOURLYWindDirection"] = pd.to_numeric(df["HOURLYWindDirection"], errors='coerce')
     df["HOURLYWindGustSpeed"] = pd.to_numeric(df["HOURLYWindGustSpeed"], errors='coerce')
+    df["HOURLYWindGustSpeed"] = pd.to_numeric(df["DAILYSunrise"], errors='coerce')
+    df["HOURLYWindGustSpeed"] = pd.to_numeric(df["DAILYSunset"], errors='coerce')
 
-    # matrix = df.fillna(0).as_matrix().mean(axis=0)
+    row = [date]
+    row.append(max(df["HOURLYDRYBULBTEMPF"]))
+    row.append(min(df["HOURLYDRYBULBTEMPF"]))
+
+
+
+    wind_chill_equation
     row.extend(df.fillna(0).as_matrix().mean(axis=0))
     return row
 
@@ -94,6 +112,8 @@ def process_data(df, date):
 
 
 def similar_days(weather_data, date):
+    assert (len(weather_data) != 0)
+    assert (check_date(date))
     similiarity = []
     atl = weather_data["ATL"]
     tx = weather_data["TX"]
